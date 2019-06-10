@@ -1,11 +1,16 @@
 # Natural Language Processing/ Sparce Matrix
 
+# Importing packages
+library(tm)
+library(SnowballC)
+library(caTools)
+library(class)
+library(e1071)
+
 # Import Dataset
 data = read.delim('Restaurant_Reviews.tsv', quote = '', stringsAsFactors = FALSE)
 
 # Cleaning the text
-install.packages('tm')
-library(tm)
 corpus = VCorpus(VectorSource(data$Review))
 
 # Change uppercase to lower
@@ -17,9 +22,7 @@ corpus = tm_map(corpus, removeNumbers)
 # Remove punctuations
 corpus = tm_map(corpus, removePunctuation)
 
-# Remove Stop words
-install.packages('SnowballC')
-library(SnowballC)
+# Remove Stop word
 corpus = tm_map(corpus, removeWords, stopwords())
 
 # Remove White Space
@@ -41,7 +44,6 @@ dataset = as.data.frame(as.matrix(dtm))
 dataset$liked = data$Liked
 
 #Split data to Test and Training
-library(caTools)
 set.seed(42)
 split = sample.split(dataset$liked, SplitRatio = 0.75)
 training_set = subset(dataset, split = TRUE)
@@ -59,28 +61,25 @@ prob_predict = predict(classifier,
 goodRating_predict = ifelse(prob_predict > 0.5, 1, 0)
 
 #Making the confusion matrix
-con_matrix = table(dataset[,692], goodRating_predict > 0.5)
-#((20+9)/1000*100= 2.9% error
+con_matrix = table(dataset[, 692], goodRating_predict > 0.5)
+# ((20+9)/1000*100= 2.9% error
 
 # kNN*
 
 # Fit k-NN to the training and test sets
-library(class)
 y_predict = knn(train = training_set[, -692], 
                 test = test_set[, -692],
                 cl = training_set[, 692],
                 k = 3)
 
 # Make confusion matrix
-con_matrix = table(test_set[,692], y_predict)
+con_matrix = table(test_set[, 692], y_predict)
 #((53+238)/1000*100= 29.1% error @ K=5
 #((49+127)/1000*100= 17.6% error @ K=3
 
 #SVM***
 
 # Fitting data to SVM
-install.packages('e1071')
-library(e1071)
 classifier = svm(formula = liked ~., data = training_set,
                  type = 'C-classification', kernel = 'linear')
 
