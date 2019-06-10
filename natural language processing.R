@@ -1,4 +1,5 @@
 # Natural Language Processing/ Sparce Matrix
+# Using Logistic, kNN and SVM models
 
 # Importing packages
 library(tm)
